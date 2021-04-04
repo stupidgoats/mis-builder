@@ -1,3 +1,22 @@
+13.0.3.7.0 (2021-02-11)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+**Features**
+
+- Add analytic group filters on report instance, periods and in the interactive
+  view. (`#320 <https://github.com/OCA/mis-builder/issues/320>`_)
+
+
+13.0.3.6.4 (2020-11-05)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+**Features**
+
+- The drilldown action name displayed on the breadcrumb has been revised.
+  The kpi description and the account ``display_name`` are shown instead
+  of the kpi's technical definition. (`#304 <https://github.com/OCA/mis-builder/issues/304>`_)
+
+
 13.0.3.6.3 (2020-08-28)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
