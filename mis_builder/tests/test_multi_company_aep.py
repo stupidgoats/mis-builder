@@ -13,7 +13,7 @@ from ..models.aep import AccountingExpressionProcessor as AEP
 
 class TestMultiCompanyAEP(common.TransactionCase):
     def setUp(self):
-        super(TestMultiCompanyAEP, self).setUp()
+        super().setUp()
         self.res_company = self.env["res.company"]
         self.account_model = self.env["account.account"]
         self.move_model = self.env["account.move"]
@@ -139,7 +139,6 @@ class TestMultiCompanyAEP(common.TransactionCase):
         aep.do_queries(
             date_from=fields.Date.to_string(date_from),
             date_to=fields.Date.to_string(date_to),
-            target_move="posted",
         )
         return aep
 

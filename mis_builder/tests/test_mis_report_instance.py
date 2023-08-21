@@ -16,7 +16,7 @@ class TestMisReportInstance(common.HttpCase):
     """
 
     def setUp(self):
-        super(TestMisReportInstance, self).setUp()
+        super().setUp()
         partner_model_id = self.env.ref("base.model_res_partner").id
         partner_create_date_field_id = self.env.ref(
             "base.field_res_partner__create_date"
@@ -364,13 +364,13 @@ class TestMisReportInstance(common.HttpCase):
             vals = [c.val for c in row.iter_cells()]
             if row.kpi.name == "k3":
                 # k3 is constant
-                self.assertEquals(vals, [AccountingNone, AccountingNone, 1.0])
+                self.assertEqual(vals, [AccountingNone, AccountingNone, 1.0])
             elif row.kpi.name == "k6":
                 # k6 is a string kpi
-                self.assertEquals(vals, ["bla", "bla", "blabla"])
+                self.assertEqual(vals, ["bla", "bla", "blabla"])
             elif row.kpi.name == "k7":
                 # k7 references k3 via subkpi names
-                self.assertEquals(vals, [AccountingNone, AccountingNone, 1.0])
+                self.assertEqual(vals, [AccountingNone, AccountingNone, 1.0])
 
     def test_multi_company_compute(self):
         self.report_instance.write(
@@ -412,7 +412,14 @@ class TestMisReportInstance(common.HttpCase):
             dict(expr="balp[200%]", period_id=self.report_instance.period_ids[0].id)
         )
         account_ids = (
-            self.env["account.account"].search([("code", "=like", "200%")]).ids
+            self.env["account.account"]
+            .search(
+                [
+                    ("code", "=like", "200%"),
+                    ("company_id", "=", self.env.ref("base.main_company").id),
+                ]
+            )
+            .ids
         )
         self.assertTrue(("account_id", "in", tuple(account_ids)) in action["domain"])
         self.assertEqual(action["res_model"], "account.move.line")
@@ -468,13 +475,20 @@ class TestMisReportInstance(common.HttpCase):
 
     def test_get_kpis_by_account_id(self):
         account_ids = (
-            self.env["account.account"].search([("code", "=like", "200%")]).mapped("id")
+            self.env["account.account"]
+            .search(
+                [
+                    ("code", "=like", "200%"),
+                    ("company_id", "=", self.env.ref("base.main_company").id),
+                ]
+            )
+            .ids
         )
         kpi200 = {self.kpi1, self.kpi2}
         res = self.report.get_kpis_by_account_id(self.env.ref("base.main_company"))
         for account_id in account_ids:
             self.assertTrue(account_id in res)
-            self.assertEquals(res[account_id], kpi200)
+            self.assertEqual(res[account_id], kpi200)
 
     def test_kpi_name_get_name_search(self):
         r = self.env["mis.report.kpi"].name_search("k1")
@@ -497,6 +511,32 @@ class TestMisReportInstance(common.HttpCase):
         r = self.env["mis.report.kpi.expression"].name_search("k4")
         self.assertEqual([i[1] for i in r], ["kpi 4 (k4)"])
 
+    def test_query_company_ids(self):
+        # sanity check single company mode
+        assert not self.report_instance.multi_company
+        assert self.report_instance.company_id
+        assert self.report_instance.query_company_ids == self.report_instance.company_id
+        # create a second company
+        c1 = self.report_instance.company_id
+        c2 = self.env["res.company"].create(
+            dict(
+                name="company 2",
+            )
+        )
+        self.report_instance.write(dict(multi_company=True, company_id=False))
+        self.report_instance.company_ids |= c1
+        self.report_instance.company_ids |= c2
+        assert len(self.report_instance.company_ids) == 2
+        self.assertFalse(self.report_instance.query_company_ids - self.env.companies)
+        # In a user context where there is only one company, ensure
+        # query_company_ids only has one company too.
+        assert (
+            self.report_instance.with_context(
+                allowed_company_ids=(c1.id,)
+            ).query_company_ids
+            == c1
+        )
+
     def test_multi_company_onchange(self):
         # not multi company
         self.assertTrue(self.report_instance.company_id)
@@ -509,25 +549,22 @@ class TestMisReportInstance(common.HttpCase):
         self.env["res.company"].create(
             dict(name="company 2", parent_id=self.report_instance.company_id.id)
         )
-        companies = self.env["res.company"].search(
-            [("id", "child_of", self.report_instance.company_id.id)]
-        )
         self.report_instance.multi_company = True
         # multi company, company_ids not set
-        self.assertEqual(
-            self.report_instance.query_company_ids[0], self.report_instance.company_id
-        )
+        self.assertEqual(self.report_instance.query_company_ids, self.env.companies)
         # set company_ids
+        previous_company = self.report_instance.company_id
         self.report_instance._onchange_company()
+        self.assertFalse(self.report_instance.company_id)
         self.assertTrue(self.report_instance.multi_company)
-        self.assertEqual(self.report_instance.company_ids, companies)
-        self.assertEqual(self.report_instance.query_company_ids, companies)
+        self.assertEqual(self.report_instance.company_ids, previous_company)
+        self.assertEqual(self.report_instance.query_company_ids, previous_company)
         # reset single company mode
         self.report_instance.multi_company = False
+        self.report_instance._onchange_company()
         self.assertEqual(
             self.report_instance.query_company_ids[0], self.report_instance.company_id
         )
-        self.report_instance._onchange_company()
         self.assertFalse(self.report_instance.company_ids)
 
     def test_mis_report_analytic_filters(self):
@@ -539,13 +576,11 @@ class TestMisReportInstance(common.HttpCase):
         for row in matrix.iter_rows():
             vals = [c.val for c in row.iter_cells()]
             if row.kpi.name == "k1":
-                self.assertEquals(
-                    vals, [AccountingNone, AccountingNone, AccountingNone]
-                )
+                self.assertEqual(vals, [AccountingNone, AccountingNone, AccountingNone])
             elif row.kpi.name == "k2":
-                self.assertEquals(vals, [AccountingNone, AccountingNone, None])
+                self.assertEqual(vals, [AccountingNone, AccountingNone, None])
             elif row.kpi.name == "k4":
-                self.assertEquals(vals, [AccountingNone, AccountingNone, 1.0])
+                self.assertEqual(vals, [AccountingNone, AccountingNone, 1.0])
 
     def test_raise_when_unknown_kpi_value_type(self):
         with self.assertRaises(SubKPIUnknownTypeError):

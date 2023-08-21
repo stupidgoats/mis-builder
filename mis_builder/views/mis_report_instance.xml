@@ -25,7 +25,7 @@
         <field name="name">mis.report.instance.view.tree</field>
         <field name="model">mis.report.instance</field>
         <field name="arch" type="xml">
-            <tree string="MIS Report Instances">
+            <tree>
                 <button
                     type="object"
                     name="preview"
@@ -161,19 +161,24 @@
                             <group name="filters">
                                 <field name="target_move" widget="radio" />
                                 <field
-                                    name="company_id"
+                                    name="multi_company"
                                     groups="base.group_multi_company"
                                 />
                                 <field
-                                    name="multi_company"
+                                    name="company_id"
                                     groups="base.group_multi_company"
+                                    attrs="{'required': [('multi_company', '=', False)], 'invisible': [('multi_company', '=', True)]}"
                                 />
                                 <field
                                     name="company_ids"
                                     groups="base.group_multi_company"
                                     widget="many2many_tags"
-                                    domain="[('id', 'child_of', company_id)]"
                                     attrs="{'invisible': [('multi_company', '=', False)]}"
+                                />
+                                <field
+                                    name="query_company_ids"
+                                    groups="base.group_multi_company"
+                                    widget="many2many_tags"
                                 />
                                 <field
                                     name="analytic_account_id"
@@ -215,6 +220,7 @@
         parent="account.menu_finance_reports"
         name="MIS Reporting"
         sequence="101"
+        groups="account.group_account_user"
     />
     <menuitem
         id="mis_report_instance_view_menu"
@@ -225,6 +231,7 @@
     />
     <record id="wizard_mis_report_instance_view_form" model="ir.ui.view">
         <field name="model">mis.report.instance</field>
+        <field name="priority">99</field>
         <field name="inherit_id" ref="mis_builder.mis_report_instance_view_form" />
         <field name="mode">primary</field>
         <field name="arch" type="xml">

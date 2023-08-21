@@ -12,7 +12,7 @@ from ..models.mis_report_instance_period import SRC_MIS_BUDGET_BY_ACCOUNT
 class TestMisBudgetByAccount(SavepointCase):
     @classmethod
     def setUpClass(cls):
-        super(TestMisBudgetByAccount, cls).setUpClass()
+        super().setUpClass()
         # create account
         account = cls.env["account.account"].create(
             dict(
@@ -126,3 +126,11 @@ class TestMisBudgetByAccount(SavepointCase):
         self.assertEqual(self.budget.state, "cancelled")
         self.budget.action_draft()
         self.assertEqual(self.budget.state, "draft")
+
+    def test_budget_item_balance(self):
+        item = self.budget.item_ids[0]
+        item.balance = 100
+        self.assertEqual(item.debit, 100)
+        item.balance = -100
+        self.assertEqual(item.debit, 0)
+        self.assertEqual(item.credit, 100)

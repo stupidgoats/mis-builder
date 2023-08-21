@@ -6,15 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 11.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2020-11-06 11:08+0000\n"
-"Last-Translator: brendapaniagua <brenda.paniagua@qubiq.es>\n"
+"PO-Revision-Date: 2023-06-23 10:08+0000\n"
+"Last-Translator: eccit-quim <quim@eccit.com>\n"
 "Language-Team: none\n"
 "Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.10\n"
+"X-Generator: Weblate 4.17\n"
 
 #. module: mis_builder
 #: code:addons/mis_builder/models/mis_report.py:0
@@ -275,7 +275,7 @@ msgstr "Un filtre de data és obligatori per aquest origen a la columna %s."
 
 #. module: mis_builder
 #: model:ir.model.fields,field_description:mis_builder.field_mis_report__account_model
-msgid "Account model"
+msgid "Account Model"
 msgstr "Model de compte"
 
 #. module: mis_builder
@@ -365,6 +365,16 @@ msgid "All Posted Entries"
 msgstr "Tots els assentaments assentats"
 
 #. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__company_ids
+msgid "Allowed companies"
+msgstr "Empreses permeses"
+
+#. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__company_id
+msgid "Allowed company"
+msgstr "Empresa permesa"
+
+#. module: mis_builder
 #: model:ir.model.fields,field_description:mis_builder.field_mis_kpi_data__amount
 msgid "Amount"
 msgstr "Import"
@@ -398,13 +408,13 @@ msgstr "Filtre Analític de Comptes"
 #: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__analytic_group_id
 #, python-format
 msgid "Analytic Account Group"
-msgstr ""
+msgstr "Grup de comptes analítics"
 
 #. module: mis_builder
 #: code:addons/mis_builder/models/mis_report_instance.py:0
 #, python-format
 msgid "Analytic Account Group: %s"
-msgstr ""
+msgstr "Grup de comptes analítics: %s"
 
 #. module: mis_builder
 #: code:addons/mis_builder/models/mis_report_instance.py:0
@@ -457,7 +467,7 @@ msgstr "Color del fons heretat"
 #. module: mis_builder
 #: model:ir.model.fields,help:mis_builder.field_mis_report_style__background_color
 msgid "Background color in valid RGB code (from #000000 to #FFFFFF)"
-msgstr "Color del fons utilitzant un codi RGB vàlid (de #000000 a #FFFFFF)"
+msgstr "Color de fons en RGB (de #000000 a #FFFFFF)"
 
 #. module: mis_builder
 #: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__date
@@ -483,10 +493,8 @@ msgstr "Cancel·lar"
 
 #. module: mis_builder
 #: model:ir.model.fields,help:mis_builder.field_mis_report_instance__multi_company
-msgid ""
-"Check if you wish to specify children companies to be searched for data."
-msgstr ""
-"Comprovi si desitja especificar companyies filles per a buscar-hi dades."
+msgid "Check if you wish to specify several companies to be searched for data."
+msgstr "Comproveu si voleu especificar diverses empreses per buscar dades."
 
 #. module: mis_builder
 #: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_style_view_form
@@ -539,19 +547,9 @@ msgid "Columns {} and {} are not comparable"
 msgstr "Les columnes {} i {} no són comparables"
 
 #. module: mis_builder
-#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__company_ids
-msgid "Companies"
-msgstr "Companyies"
-
-#. module: mis_builder
 #: model:ir.model.fields,help:mis_builder.field_mis_report_instance__query_company_ids
 msgid "Companies for which data will be searched."
 msgstr "Companyies per a les que es buscaran dades."
-
-#. module: mis_builder
-#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__company_id
-msgid "Company"
-msgstr "Companyia"
 
 #. module: mis_builder
 #: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__source_cmpcol_to_id
@@ -758,6 +756,11 @@ msgid "Duration"
 msgstr "Durada"
 
 #. module: mis_builder
+#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__query_company_ids
+msgid "Effective companies"
+msgstr "Empreses efectives"
+
+#. module: mis_builder
 #: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
 msgid "Enter expression here, for example balp[70%]. See also help tab."
 msgstr ""
@@ -855,6 +858,9 @@ msgid ""
 "This filter is combined with a AND with the report-level filters and cannot "
 "be modified in the preview."
 msgstr ""
+"Filtreu la columna a les entrades de diari que coincideixin amb aquest grup "
+"de comptes analítics. Aquest filtre es combina amb un AND amb els filtres a "
+"nivell d'informe i no es pot modificar a la vista prèvia."
 
 #. module: mis_builder
 #: model:ir.model.fields,help:mis_builder.field_mis_report_instance_period__analytic_account_id
@@ -1191,11 +1197,6 @@ msgid "MIS Report Instance Period Sum"
 msgstr "Suma del període d’instància de l’informe MIS"
 
 #. module: mis_builder
-#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_instance_view_tree
-msgid "MIS Report Instances"
-msgstr "Instàncies d'informes MIS"
-
-#. module: mis_builder
 #: model:ir.model,name:mis_builder.model_mis_report_kpi
 #: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
 msgid "MIS Report KPI"
@@ -1225,7 +1226,6 @@ msgstr "Estil de format MIS"
 #. module: mis_builder
 #: model:ir.actions.act_window,name:mis_builder.mis_report_style_view_action
 #: model:ir.ui.menu,name:mis_builder.mis_report_style_view_menu
-#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_style_view_tree
 msgid "MIS Report Styles"
 msgstr "Estils d'informes MIS"
 
@@ -1254,7 +1254,6 @@ msgstr "MIS"
 #. module: mis_builder
 #: model:ir.actions.act_window,name:mis_builder.mis_report_instance_view_action
 #: model:ir.ui.menu,name:mis_builder.mis_report_instance_view_menu
-#: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_tree
 msgid "MIS Reports"
 msgstr "Informes MIS"
 
@@ -1301,6 +1300,10 @@ msgstr "Mes"
 
 #. module: mis_builder
 #: model:ir.model.fields,field_description:mis_builder.field_mis_report__move_lines_source
+msgid "Move Lines Source"
+msgstr "Moveu l'origen de les línies"
+
+#. module: mis_builder
 #: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__source_aml_model_id
 msgid "Move lines source"
 msgstr "Origen dels apunts"
@@ -1416,8 +1419,8 @@ msgstr "Períodes"
 
 #. module: mis_builder
 #: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__pivot_date
-msgid "Pivot date"
-msgstr "Data pivot"
+msgid "Pivot Date"
+msgstr "Data de pivot"
 
 #. module: mis_builder
 #: code:addons/mis_builder/models/mis_report_instance.py:0
@@ -1457,11 +1460,6 @@ msgstr "Imprimeix"
 #: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_form
 msgid "Queries"
 msgstr "Consultes"
-
-#. module: mis_builder
-#: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance__query_company_ids
-msgid "Query Company"
-msgstr "Companyia de la consulta"
 
 #. module: mis_builder
 #: code:addons/mis_builder/models/mis_report.py:0
@@ -1557,8 +1555,8 @@ msgid ""
 "Should not include the same report more than once as sub report of a given "
 "report"
 msgstr ""
-"No hauria d'incloure el mateix informe més d'una vegada que el subinforme "
-"d'un informe determinat"
+"No s'ha d'incloure el mateix informe més d'una vegada com a subinforme d'un "
+"informe determinat"
 
 #. module: mis_builder
 #: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period_sum__sign
@@ -1587,7 +1585,7 @@ msgstr "Estil"
 
 #. module: mis_builder
 #: model:ir.model.fields,field_description:mis_builder.field_mis_report_kpi__style_expression
-msgid "Style expression"
+msgid "Style Expression"
 msgstr "Expressió d'estil"
 
 #. module: mis_builder
@@ -1730,7 +1728,7 @@ msgstr "Color de text"
 #. module: mis_builder
 #: model:ir.model.fields,help:mis_builder.field_mis_report_style__color
 msgid "Text color in valid RGB code (from #000000 to #FFFFFF)"
-msgstr "Color de text en un codi RGB vàlid (des de #000000 fins a #FFFFFF)"
+msgstr "Color de text en un codi RGB vàlid (de #000000 fins a #FFFFFF)"
 
 #. module: mis_builder
 #: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
@@ -1742,10 +1740,10 @@ msgid ""
 "                                            70%, etc)."
 msgstr ""
 "El\n"
-"                                            <b> selector de comptes </b>\n"
-"                                            és una expressió similar al codi "
-"del compte (per exemple,\n"
-"                                            70%, etc.)."
+"                                            <b>selector de comptes</b>\n"
+"                                            és una expressió semblant al "
+"codi del compte (p. ex\n"
+"                                            70%, etc)."
 
 #. module: mis_builder
 #: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
@@ -1756,10 +1754,10 @@ msgid ""
 "journal items."
 msgstr ""
 "El\n"
-"                                            <b> domini d’elements de diari </"
-"b>\n"
-"                                            és un filtre de domini Odoo en "
-"articles del diari."
+"                                            <b>domini d'articles de diari</b>"
+"\n"
+"                                            és un filtre de domini d'Odoo "
+"sobre articles de diari."
 
 #. module: mis_builder
 #: model_terms:ir.ui.view,arch_db:mis_builder.mis_report_view_kpi_form
@@ -1778,10 +1776,10 @@ msgstr ""
 "                                        les expressions per calcular dades "
 "comptables:\n"
 "                                        <code>\n"
-"                                            {bal | crd | deb | pbal | nbal} "
-"{pieu} [compte\n"
-"                                            selector] [domini dels articles "
-"de la revista]\n"
+"                                            {bal|crd|deb|pbal|nbal}{pieu}["
+"compte\n"
+"                                            selector][domini d'articles de "
+"diari]\n"
 "                                        </code>\n"
 "                                        ."
 
@@ -1802,6 +1800,12 @@ msgstr "Per (calculat)"
 #, python-format
 msgid "Unexpected accumulation method %s for %s."
 msgstr "Mètode d'acumulació %s no esperat per a %s."
+
+#. module: mis_builder
+#: code:addons/mis_builder/models/mis_report.py:0
+#, python-format
+msgid "Unexpected value %s for target_move."
+msgstr "Valor inesperat %s per a target_move."
 
 #. module: mis_builder
 #: code:addons/mis_builder/models/prorata_read_group_mixin.py:0
@@ -1858,7 +1862,7 @@ msgstr "Any"
 #. module: mis_builder
 #: model:ir.model.fields,field_description:mis_builder.field_mis_report_instance_period__is_ytd
 msgid "Year to date"
-msgstr "Any fins a la data"
+msgstr "Any en curs"
 
 #. module: mis_builder
 #: code:addons/mis_builder/models/mis_report_instance.py:0
@@ -1923,6 +1927,32 @@ msgstr "extra-súper-gran"
 #: model:ir.model.fields.selection,name:mis_builder.selection__mis_report_style__font_size__xx-small
 msgid "xx-small"
 msgstr "extra-súper-petita"
+
+#~ msgid "Account model"
+#~ msgstr "Model de compte"
+
+#~ msgid "MIS Report Instances"
+#~ msgstr "Instàncies d'informes MIS"
+
+#~ msgid "Pivot date"
+#~ msgstr "Data pivot"
+
+#~ msgid "Style expression"
+#~ msgstr "Expressió d'estil"
+
+#~ msgid ""
+#~ "Check if you wish to specify children companies to be searched for data."
+#~ msgstr ""
+#~ "Comprovi si desitja especificar companyies filles per a buscar-hi dades."
+
+#~ msgid "Companies"
+#~ msgstr "Companyies"
+
+#~ msgid "Company"
+#~ msgstr "Companyia"
+
+#~ msgid "Query Company"
+#~ msgstr "Companyia de la consulta"
 
 #~ msgid ""
 #~ "<b>AccountingNone</b>: a null value that behaves as 0 in arithmetic "

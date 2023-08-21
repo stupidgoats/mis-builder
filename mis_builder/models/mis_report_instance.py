@@ -1,4 +1,5 @@
 # Copyright 2014 ACSONE SA/NV (<http://acsone.eu>)
+# Copyright 2020 CorporateHub (https://corporatehub.eu)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 import datetime
@@ -174,7 +175,7 @@ class MisReportInstancePeriod(models.Model):
     _name = "mis.report.instance.period"
     _description = "MIS Report Instance Period"
 
-    name = fields.Char(size=32, required=True, string="Label", translate=True)
+    name = fields.Char(required=True, string="Label", translate=True)
     mode = fields.Selection(
         [
             (MODE_FIX, "Fixed dates"),
@@ -204,17 +205,15 @@ class MisReportInstancePeriod(models.Model):
         string="Date Range Type",
         domain=[("allow_overlap", "=", False)],
     )
-    offset = fields.Integer(
-        string="Offset", help="Offset from current period", default=-1
-    )
-    duration = fields.Integer(string="Duration", help="Number of periods", default=1)
+    offset = fields.Integer(help="Offset from current period", default=-1)
+    duration = fields.Integer(help="Number of periods", default=1)
     date_from = fields.Date(compute="_compute_dates", string="From (computed)")
     date_to = fields.Date(compute="_compute_dates", string="To (computed)")
     manual_date_from = fields.Date(string="From")
     manual_date_to = fields.Date(string="To")
     date_range_id = fields.Many2one(comodel_name="date.range", string="Date Range")
-    valid = fields.Boolean(compute="_compute_dates", type="boolean", string="Valid")
-    sequence = fields.Integer(string="Sequence", default=100)
+    valid = fields.Boolean(compute="_compute_dates", type="boolean")
+    sequence = fields.Integer(default=100)
     report_instance_id = fields.Many2one(
         comodel_name="mis.report.instance",
         string="Report Instance",
@@ -405,11 +404,13 @@ class MisReportInstancePeriod(models.Model):
         compatible with account.move.line."""
         self.ensure_one()
         domain = self._get_filter_domain_from_context()
-        if (
-            self._get_aml_model_name() == "account.move.line"
-            and self.report_instance_id.target_move == "posted"
-        ):
-            domain.extend([("move_id.state", "=", "posted")])
+        aml_model_name = self._get_aml_model_name()
+        if aml_model_name:
+            domain.extend(
+                self.report_id._get_target_move_domain(
+                    self.report_instance_id.target_move, aml_model_name
+                )
+            )
         if self.analytic_account_id:
             domain.append(("analytic_account_id", "=", self.analytic_account_id.id))
         if self.analytic_group_id:
@@ -472,6 +473,17 @@ class MisReportInstancePeriod(models.Model):
                         % rec.name
                     )
 
+    def copy_data(self, default=None):
+        if self.source == SRC_CMPCOL:
+            # While duplicating a MIS report instance, comparison columns are
+            # ignored because they would raise an error, as they keep the old
+            # `source_cmpcol_from_id` and `source_cmpcol_to_id` from the
+            # original record.
+            return [
+                False,
+            ]
+        return super().copy_data(default=default)
+
 
 class MisReportInstance(models.Model):
     """The MIS report instance combines everything to compute
@@ -488,12 +500,12 @@ class MisReportInstance(models.Model):
     _name = "mis.report.instance"
     _description = "MIS Report Instance"
 
-    name = fields.Char(required=True, string="Name", translate=True)
+    name = fields.Char(required=True, translate=True)
     description = fields.Char(related="report_id.description", readonly=True)
     date = fields.Date(
         string="Base date", help="Report base date " "(leave empty to use current date)"
     )
-    pivot_date = fields.Date(compute="_compute_pivot_date", string="Pivot date")
+    pivot_date = fields.Date(compute="_compute_pivot_date")
     report_id = fields.Many2one("mis.report", required=True, string="Report")
     period_ids = fields.One2many(
         comodel_name="mis.report.instance.period",
@@ -510,22 +522,22 @@ class MisReportInstance(models.Model):
     )
     company_id = fields.Many2one(
         comodel_name="res.company",
-        string="Company",
+        string="Allowed company",
         default=lambda self: self.env.company,
-        required=True,
+        required=False,
     )
     multi_company = fields.Boolean(
         string="Multiple companies",
-        help="Check if you wish to specify "
-        "children companies to be searched for data.",
+        help="Check if you wish to specify several companies to be searched for data.",
         default=False,
     )
     company_ids = fields.Many2many(
         comodel_name="res.company",
-        string="Companies",
+        string="Allowed companies",
         help="Select companies for which data will be searched.",
     )
     query_company_ids = fields.Many2many(
+        string="Effective companies",
         comodel_name="res.company",
         compute="_compute_query_company_ids",
         help="Companies for which data will be searched.",
@@ -561,22 +573,36 @@ class MisReportInstance(models.Model):
     )
     hide_analytic_filters = fields.Boolean(default=True)
 
-    @api.onchange("company_id", "multi_company")
+    @api.onchange("multi_company")
     def _onchange_company(self):
-        if self.company_id and self.multi_company:
-            self.company_ids = self.env["res.company"].search(
-                [("id", "child_of", self.company_id.id)]
-            )
+        if self.multi_company:
+            self.company_ids |= self.company_id
+            self.company_id = False
         else:
+            prev = self.company_ids.ids
+            company = False
+            if self.env.company.id in prev:
+                company = self.env.company
+            else:
+                for c_id in prev:
+                    if c_id in self.env.companies.ids:
+                        company = self.env["res.company"].browse(c_id)
+                        break
+
+            self.company_id = company
             self.company_ids = False
 
     @api.depends("multi_company", "company_id", "company_ids")
+    @api.depends_context("allowed_company_ids")
     def _compute_query_company_ids(self):
         for rec in self:
             if rec.multi_company:
-                rec.query_company_ids = rec.company_ids or rec.company_id
+                if not rec.company_ids:
+                    rec.query_company_ids = self.env.companies
+                else:
+                    rec.query_company_ids = rec.company_ids & self.env.companies
             else:
-                rec.query_company_ids = rec.company_id
+                rec.query_company_ids = rec.company_id or self.env.company
 
     @api.model
     def get_filter_descriptions_from_context(self):
@@ -633,7 +659,7 @@ class MisReportInstance(models.Model):
         self.ensure_one()
         default = dict(default or {})
         default["name"] = _("%s (copy)") % self.name
-        return super(MisReportInstance, self).copy(default)
+        return super().copy(default)
 
     def _format_date(self, date):
         # format date following user language
@@ -722,7 +748,7 @@ class MisReportInstance(models.Model):
         context = dict(self._context_with_filters(), landscape=self.landscape_pdf)
         return (
             self.env.ref("mis_builder.qweb_pdf_export")
-            .with_context(context)
+            .with_context(**context)
             .report_action(self, data=dict(dummy=True))  # required to propagate context
         )
 
@@ -731,7 +757,7 @@ class MisReportInstance(models.Model):
         context = dict(self._context_with_filters())
         return (
             self.env.ref("mis_builder.xls_export")
-            .with_context(context)
+            .with_context(**context)
             .report_action(self, data=dict(dummy=True))  # required to propagate context
         )
 
@@ -758,7 +784,6 @@ class MisReportInstance(models.Model):
             aep,
             period.date_from,
             period.date_to,
-            None,  # target_move now part of additional_move_line_filter
             period._get_additional_move_line_filter(),
             period._get_aml_model_name(),
         )
@@ -852,7 +877,6 @@ class MisReportInstance(models.Model):
                 expr,
                 period.date_from,
                 period.date_to,
-                None,  # target_move now part of additional_move_line_filter
                 account_id,
             )
             domain.extend(period._get_additional_move_line_filter())
@@ -877,7 +901,7 @@ class MisReportInstance(models.Model):
         account_id = arg.get("account_id")
 
         if account_id:
-            account = self.env["account.account"].browse(account_id)
+            account = self.env[self.report_id.account_model].browse(account_id)
             return "{kpi} - {account} - {period}".format(
                 kpi=kpi.description,
                 account=account.display_name,

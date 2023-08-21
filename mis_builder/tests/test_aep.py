@@ -14,7 +14,7 @@ from ..models.aep import AccountingExpressionProcessor as AEP, _is_domain
 
 class TestAEP(common.TransactionCase):
     def setUp(self):
-        super(TestAEP, self).setUp()
+        super().setUp()
         self.res_company = self.env["res.company"]
         self.account_model = self.env["account.account"]
         self.move_model = self.env["account.move"]
@@ -132,7 +132,6 @@ class TestAEP(common.TransactionCase):
         self.aep.do_queries(
             date_from=fields.Date.to_string(date_from),
             date_to=fields.Date.to_string(date_to),
-            target_move="posted",
         )
 
     def _eval(self, expr):
@@ -147,8 +146,8 @@ class TestAEP(common.TransactionCase):
         return res
 
     def test_sanity_check(self):
-        self.assertEquals(self.company.fiscalyear_last_day, 31)
-        self.assertEquals(self.company.fiscalyear_last_month, "12")
+        self.assertEqual(self.company.fiscalyear_last_day, 31)
+        self.assertEqual(self.company.fiscalyear_last_month, "12")
 
     def test_aep_basic(self):
         self.aep.done_parsing()
@@ -160,9 +159,9 @@ class TestAEP(common.TransactionCase):
         self.assertIs(self._eval("bali[400AR]"), AccountingNone)
         self.assertIs(self._eval("bali[700IN]"), AccountingNone)
         # check variation
-        self.assertEquals(self._eval("balp[400AR]"), 100)
-        self.assertEquals(self._eval("balp[][('account_id.code', '=', '400AR')]"), 100)
-        self.assertEquals(
+        self.assertEqual(self._eval("balp[400AR]"), 100)
+        self.assertEqual(self._eval("balp[][('account_id.code', '=', '400AR')]"), 100)
+        self.assertEqual(
             self._eval(
                 "balp[]"
                 "[('account_id.user_type_id', '=', "
@@ -170,14 +169,14 @@ class TestAEP(common.TransactionCase):
             ),
             100,
         )
-        self.assertEquals(
+        self.assertEqual(
             self._eval(
                 "balp[('user_type_id', '=', "
                 "      ref('account.data_account_type_receivable').id)]"
             ),
             100,
         )
-        self.assertEquals(
+        self.assertEqual(
             self._eval(
                 "balp['&', "
                 "     ('user_type_id', '=', "
@@ -186,58 +185,58 @@ class TestAEP(common.TransactionCase):
             ),
             100,
         )
-        self.assertEquals(self._eval("balp[700IN]"), -100)
+        self.assertEqual(self._eval("balp[700IN]"), -100)
         # check ending balance
-        self.assertEquals(self._eval("bale[400AR]"), 100)
-        self.assertEquals(self._eval("bale[700IN]"), -100)
+        self.assertEqual(self._eval("bale[400AR]"), 100)
+        self.assertEqual(self._eval("bale[700IN]"), -100)
 
         # let's query for January
         self._do_queries(
             datetime.date(self.curr_year, 1, 1), datetime.date(self.curr_year, 1, 31)
         )
         # initial balance is None for income account (it's not carried over)
-        self.assertEquals(self._eval("bali[400AR]"), 100)
+        self.assertEqual(self._eval("bali[400AR]"), 100)
         self.assertIs(self._eval("bali[700IN]"), AccountingNone)
         # check variation
-        self.assertEquals(self._eval("balp[400AR]"), 300)
-        self.assertEquals(self._eval("balp[700IN]"), -300)
+        self.assertEqual(self._eval("balp[400AR]"), 300)
+        self.assertEqual(self._eval("balp[700IN]"), -300)
         # check ending balance
-        self.assertEquals(self._eval("bale[400AR]"), 400)
-        self.assertEquals(self._eval("bale[700IN]"), -300)
+        self.assertEqual(self._eval("bale[400AR]"), 400)
+        self.assertEqual(self._eval("bale[700IN]"), -300)
 
         # let's query for March
         self._do_queries(
             datetime.date(self.curr_year, 3, 1), datetime.date(self.curr_year, 3, 31)
         )
         # initial balance is the ending balance fo January
-        self.assertEquals(self._eval("bali[400AR]"), 400)
-        self.assertEquals(self._eval("bali[700IN]"), -300)
-        self.assertEquals(self._eval("pbali[400AR]"), 400)
-        self.assertEquals(self._eval("nbali[400AR]"), 0)
-        self.assertEquals(self._eval("nbali[700IN]"), -300)
-        self.assertEquals(self._eval("pbali[700IN]"), 0)
+        self.assertEqual(self._eval("bali[400AR]"), 400)
+        self.assertEqual(self._eval("bali[700IN]"), -300)
+        self.assertEqual(self._eval("pbali[400AR]"), 400)
+        self.assertEqual(self._eval("nbali[400AR]"), 0)
+        self.assertEqual(self._eval("nbali[700IN]"), -300)
+        self.assertEqual(self._eval("pbali[700IN]"), 0)
         # check variation
-        self.assertEquals(self._eval("balp[400AR]"), 500)
-        self.assertEquals(self._eval("balp[700IN]"), -500)
-        self.assertEquals(self._eval("nbalp[400AR]"), 0)
-        self.assertEquals(self._eval("pbalp[400AR]"), 500)
-        self.assertEquals(self._eval("nbalp[700IN]"), -500)
-        self.assertEquals(self._eval("pbalp[700IN]"), 0)
+        self.assertEqual(self._eval("balp[400AR]"), 500)
+        self.assertEqual(self._eval("balp[700IN]"), -500)
+        self.assertEqual(self._eval("nbalp[400AR]"), 0)
+        self.assertEqual(self._eval("pbalp[400AR]"), 500)
+        self.assertEqual(self._eval("nbalp[700IN]"), -500)
+        self.assertEqual(self._eval("pbalp[700IN]"), 0)
         # check ending balance
-        self.assertEquals(self._eval("bale[400AR]"), 900)
-        self.assertEquals(self._eval("nbale[400AR]"), 0)
-        self.assertEquals(self._eval("pbale[400AR]"), 900)
-        self.assertEquals(self._eval("bale[700IN]"), -800)
-        self.assertEquals(self._eval("nbale[700IN]"), -800)
-        self.assertEquals(self._eval("pbale[700IN]"), 0)
+        self.assertEqual(self._eval("bale[400AR]"), 900)
+        self.assertEqual(self._eval("nbale[400AR]"), 0)
+        self.assertEqual(self._eval("pbale[400AR]"), 900)
+        self.assertEqual(self._eval("bale[700IN]"), -800)
+        self.assertEqual(self._eval("nbale[700IN]"), -800)
+        self.assertEqual(self._eval("pbale[700IN]"), 0)
         # check some variant expressions, for coverage
-        self.assertEquals(self._eval("crdp[700I%]"), 500)
-        self.assertEquals(self._eval("debp[400A%]"), 500)
-        self.assertEquals(self._eval("bal_700IN"), -500)
-        self.assertEquals(self._eval("bals[700IN]"), -800)
+        self.assertEqual(self._eval("crdp[700I%]"), 500)
+        self.assertEqual(self._eval("debp[400A%]"), 500)
+        self.assertEqual(self._eval("bal_700IN"), -500)
+        self.assertEqual(self._eval("bals[700IN]"), -800)
 
         # unallocated p&l from previous year
-        self.assertEquals(self._eval("balu[]"), -100)
+        self.assertEqual(self._eval("balu[]"), -100)
 
         # TODO allocate profits, and then...
 
@@ -247,52 +246,43 @@ class TestAEP(common.TransactionCase):
             datetime.date(self.curr_year, 3, 1), datetime.date(self.curr_year, 3, 31)
         )
         variation = self._eval_by_account_id("balp[]")
-        self.assertEquals(
-            variation, {self.account_ar.id: 500, self.account_in.id: -500}
-        )
+        self.assertEqual(variation, {self.account_ar.id: 500, self.account_in.id: -500})
         variation = self._eval_by_account_id("pbalp[]")
-        self.assertEquals(
+        self.assertEqual(
             variation, {self.account_ar.id: 500, self.account_in.id: AccountingNone}
         )
         variation = self._eval_by_account_id("nbalp[]")
-        self.assertEquals(
+        self.assertEqual(
             variation, {self.account_ar.id: AccountingNone, self.account_in.id: -500}
         )
         variation = self._eval_by_account_id("balp[700IN]")
-        self.assertEquals(variation, {self.account_in.id: -500})
+        self.assertEqual(variation, {self.account_in.id: -500})
         variation = self._eval_by_account_id("crdp[700IN] - debp[400AR]")
-        self.assertEquals(
-            variation, {self.account_ar.id: -500, self.account_in.id: 500}
-        )
+        self.assertEqual(variation, {self.account_ar.id: -500, self.account_in.id: 500})
         end = self._eval_by_account_id("bale[]")
-        self.assertEquals(end, {self.account_ar.id: 900, self.account_in.id: -800})
+        self.assertEqual(end, {self.account_ar.id: 900, self.account_in.id: -800})
 
     def test_aep_convenience_methods(self):
-        initial = AEP.get_balances_initial(
-            self.company, time.strftime("%Y") + "-03-01", "posted"
-        )
-        self.assertEquals(
+        initial = AEP.get_balances_initial(self.company, time.strftime("%Y") + "-03-01")
+        self.assertEqual(
             initial, {self.account_ar.id: (400, 0), self.account_in.id: (0, 300)}
         )
         variation = AEP.get_balances_variation(
             self.company,
             time.strftime("%Y") + "-03-01",
             time.strftime("%Y") + "-03-31",
-            "posted",
         )
-        self.assertEquals(
+        self.assertEqual(
             variation, {self.account_ar.id: (500, 0), self.account_in.id: (0, 500)}
         )
-        end = AEP.get_balances_end(
-            self.company, time.strftime("%Y") + "-03-31", "posted"
-        )
-        self.assertEquals(
+        end = AEP.get_balances_end(self.company, time.strftime("%Y") + "-03-31")
+        self.assertEqual(
             end, {self.account_ar.id: (900, 0), self.account_in.id: (0, 800)}
         )
         unallocated = AEP.get_unallocated_pl(
-            self.company, time.strftime("%Y") + "-03-15", "posted"
+            self.company, time.strftime("%Y") + "-03-15"
         )
-        self.assertEquals(unallocated, (0, 100))
+        self.assertEqual(unallocated, (0, 100))
 
     def test_float_is_zero(self):
         dp = self.company.currency_id.decimal_places
@@ -304,10 +294,8 @@ class TestAEP(common.TransactionCase):
             debit_acc=self.account_in,
             credit_acc=self.account_ar,
         )
-        initial = AEP.get_balances_initial(
-            self.company, time.strftime("%Y") + "-01-01", "posted"
-        )
-        self.assertEquals(initial, {self.account_ar.id: (100.00, 100.01)})
+        initial = AEP.get_balances_initial(self.company, time.strftime("%Y") + "-01-01")
+        self.assertEqual(initial, {self.account_ar.id: (100.00, 100.01)})
         # make initial balance at Jan 1st equal to 0.001
         self._create_move(
             date=datetime.date(self.prev_year, 12, 1),
@@ -315,45 +303,37 @@ class TestAEP(common.TransactionCase):
             debit_acc=self.account_ar,
             credit_acc=self.account_in,
         )
-        initial = AEP.get_balances_initial(
-            self.company, time.strftime("%Y") + "-01-01", "posted"
-        )
+        initial = AEP.get_balances_initial(self.company, time.strftime("%Y") + "-01-01")
         # epsilon initial balances is reported as empty
-        self.assertEquals(initial, {})
+        self.assertEqual(initial, {})
 
     def test_get_account_ids_for_expr(self):
         self.aep.done_parsing()
         expr = "balp[700IN]"
         account_ids = self.aep.get_account_ids_for_expr(expr)
-        self.assertEquals(account_ids, {self.account_in.id})
+        self.assertEqual(account_ids, {self.account_in.id})
         expr = "balp[700%]"
         account_ids = self.aep.get_account_ids_for_expr(expr)
-        self.assertEquals(account_ids, {self.account_in.id})
+        self.assertEqual(account_ids, {self.account_in.id})
         expr = "bali[400%], bale[700%]"  # subkpis combined expression
         account_ids = self.aep.get_account_ids_for_expr(expr)
-        self.assertEquals(account_ids, {self.account_in.id, self.account_ar.id})
+        self.assertEqual(account_ids, {self.account_in.id, self.account_ar.id})
 
     def test_get_aml_domain_for_expr(self):
         self.aep.done_parsing()
         expr = "balp[700IN]"
-        domain = self.aep.get_aml_domain_for_expr(
-            expr, "2017-01-01", "2017-03-31", target_move="posted"
-        )
+        domain = self.aep.get_aml_domain_for_expr(expr, "2017-01-01", "2017-03-31")
         self.assertEqual(
             domain,
             [
                 ("account_id", "in", (self.account_in.id,)),
                 "&",
-                "&",
                 ("date", ">=", "2017-01-01"),
                 ("date", "<=", "2017-03-31"),
-                ("move_id.state", "=", "posted"),
             ],
         )
         expr = "debi[700IN] - crdi[400AR]"
-        domain = self.aep.get_aml_domain_for_expr(
-            expr, "2017-02-01", "2017-03-31", target_move="draft"
-        )
+        domain = self.aep.get_aml_domain_for_expr(expr, "2017-02-01", "2017-03-31")
         self.assertEqual(
             domain,
             [
